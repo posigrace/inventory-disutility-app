@@ -80,8 +80,8 @@ ordering_cost = st.number_input(
 holding_rate = st.slider(
     "Annual holding cost rate (%)", min_value=0, max_value=100, value=20) / 100  # convert % to decimal
 
-df["annual_demand"] = df["Curr Year Usage"]
-df["holding_cost"] = holding_rate * df["Unit Cost"]
+df["annual_demand"] = pd.to_numeric(df["curr_year_usage"], errors="coerce")
+df["unit_cost"] = pd.to_numeric(df["unit_cost"], errors="coerce")
 
 import numpy as np
 
@@ -94,5 +94,6 @@ st.dataframe(
     use_container_width=True,
     height=500
 )
+
 
 
