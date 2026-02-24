@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import re
+import numpy as py
 
 st.title("Inventory Data Cleaner")
 
@@ -45,6 +46,9 @@ if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding="latin1")
     else:
         df = pd.read_excel(uploaded_file)
+
+    original_columns = df.columns.tolist()
+
     df.columns = (df.columns
         .str.strip()                        # remove spaces at start/end
         .str.lower()                        # lowercase everything
@@ -94,6 +98,7 @@ st.dataframe(
     use_container_width=True,
     height=500
 )
+
 
 
 
