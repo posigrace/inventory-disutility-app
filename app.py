@@ -5,26 +5,7 @@ import re
 st.title("Inventory Data Cleaner")
 
 #REQUIRED COLUMNS
-REQUIRED_COLUMNS = [
-    "Item",
-    "Descript",
-    "Status Current",
-    "Replen Cls",
-    "Special Inst",
-    "Std UOM",
-    "End Use Code",
-    "Qty On Hand",
-    "Qty Avail",
-    "Manufacturer Name",
-    "Mfg ID",
-    "Mfg Itm ID",
-    "Vendor Name",
-    "Currency",
-    "Unit Cost",
-    "Code",
-    "Comm Code",
-    "MSDS ID"
-]
+REQUIRED_COLUMNS = ["Item","Descript","Status Current","Replen Cls","Special Inst","Std UOM","End Use Code","Qty On Hand","Qty Avail","Manufacturer Name","Mfg ID","Mfg Itm ID","Vendor Name","Currency","Unit Cost","Code","Comm Code", "MSDS ID"]
 
 #function to clean the data
 def clean_inventory(df):
@@ -45,8 +26,8 @@ def clean_inventory(df):
                 df[col]
                 .astype(str)
                 .str.replace(",", "", regex=False)
-                .str.replace("$", "", regex=False)
-            )
+                .str.replace("$", "", regex=False) 
+                    )
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
     # drop completely empty rows
@@ -83,8 +64,28 @@ if uploaded_file:
         "Download Cleaned CSV",
         cleaned.to_csv(index=False),
         "cleaned_inventory.csv",
-        "text/csv"
-    )
+        "text/csv" )
 
+#DISUTILITY MODEL WORK
+st.subheader("EOQ & Disutility Settings")
 
+ordering_cost = st.number_input(
+    "Ordering cost per order (S)", min_value=0.0, value=100.0, step=1.0)
 
+holding_rate = st.slider(
+    "Annual holding cost rate (%)", min_value=0, max_value=100, value=20) / 100  # convert % to decimal
+
+df["annual_demand"] = df["Curr Year Usage"]
+df["holding_cost"] = holding_rate * df["Unit Cost"]
+
+import numpy as np
+
+df["EOQ"] = np.sqrt(
+    (2 * df["annual_demand"] * ordering_cost) / df["holding_cost"])
+
+st.subheader("EOQ Preview")
+st.dataframe(
+    df[["Item", "Qty On Hand", "EOQ"]],
+    use_container_width=True,
+    height=500
+)
