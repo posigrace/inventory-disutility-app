@@ -61,7 +61,7 @@ uploaded_file = st.file_uploader("Upload Excel or CSV", type=["xlsx", "csv"])
 if uploaded_file:
 
     if uploaded_file.name.endswith(".csv"):
-        df = pd.read_csv(uploaded_file)
+        df = pd.read_csv(uploaded_file, encoding="latin1")
     else:
         df = pd.read_excel(uploaded_file)
 
@@ -79,4 +79,5 @@ if uploaded_file:
         "cleaned_inventory.csv",
         "text/csv"
     )
+
 
