@@ -1,28 +1,82 @@
 import streamlit as st
 import pandas as pd
-import os
+import re
 
-st.title("Inventory Prototype – Test Run")
+st.title("Inventory Data Cleaner")
 
-if os.path.exists("inventory.xlsx"):
-    df = pd.read_excel("inventory.xlsx")
-    st.write("Excel loaded successfully.")
-    df = df.head(5)
+#REQUIRED COLUMNS
+REQUIRED_COLUMNS = [
+    "Item",
+    "Descript",
+    "Status Current",
+    "Replen Cls",
+    "Special Inst",
+    "Std UOM",
+    "End Use Code",
+    "Qty On Hand",
+    "Qty Avail",
+    "Manufacturer Name",
+    "Mfg ID",
+    "Mfg Itm ID",
+    "Vendor Name",
+    "Currency",
+    "Unit Cost",
+    "Code",
+    "Comm Code",
+    "MSDS ID"
+]
 
-    for _, row in df.iterrows():
-    	st.subheader(row["Descript"])
+#function to clean the data
+def clean_inventory(df):
 
-    	st.caption(f"Location: {row['Area']} / {row['Lev 1']}")
+     # remove whitespace
+    df.columns = df.columns.str.strip()
+    
+     # keep only required columns
+    available_cols = [col for col in REQUIRED_COLUMNS if col in df.columns]
+    df = df[available_cols]
+    
+    # clean numeric columns
+    numeric_cols = ["Qty On Hand", "Qty Avail", "Unit Cost"]
 
-    	st.write("Qty On Hand:", row["Qty On Hand"])
-    	st.write("Qty Available:", row["Qty Avail"])
-    	st.write("Reorder Point:", row["Reorder Pt"])
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = (
+                df[col]
+                .astype(str)
+                .str.replace(",", "", regex=False)
+                .str.replace("$", "", regex=False)
+            )
+            df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    	if row["Qty Avail"] < row["Reorder Pt"]:
-        	st.warning("Below reorder point")
-    	else:
-        	st.success("Stock level OK")
+    # drop completely empty rows
+    df = df.dropna(how="all")
 
-    	st.divider()
-else:
-    st.error("inventory.xlsx not found in this folder.")
+    df = df.reset_index(drop=True)
+
+    return df
+
+#file uploader
+uploaded_file = st.file_uploader("Upload Excel or CSV", type=["xlsx", "csv"])
+if uploaded_file:
+
+    if uploaded_file.name.endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+    else:
+        df = pd.read_excel(uploaded_file)
+
+    st.subheader("Original Columns")
+    st.write(df.columns.tolist())
+
+    cleaned = clean_inventory(df)
+
+    st.subheader("Cleaned Data")
+    st.dataframe(cleaned)
+
+    st.download_button(
+        "Download Cleaned CSV",
+        cleaned.to_csv(index=False),
+        "cleaned_inventory.csv",
+        "text/csv"
+    )
+
