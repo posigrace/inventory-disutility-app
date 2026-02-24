@@ -26,13 +26,48 @@ def clean_inventory(df):
         if col in df.columns:
             df[col] = (df[col].astype(str).str.replace(",", "", regex=False).str.replace("$", "", regex=False))
             df[col] = pd.to_numeric(df[col], errors="coerce")
+    
+    #--------------------
+    #FILTERINGITEMSINROWS
+    #--------------------
+    # Keep only Active items
+    if "Status Current" in df.columns:
+        df = df[df["Status Current"].str.strip().str.lower() == "active"]
+
+    # Remove discontinued with zero quantity on hand
+    if "Status Current" in df.columns and "Qty On Hand" in df.columns:
+        df = df[~(
+            (df["Status Current"].str.strip().str.lower() == "discontinued") &
+            (df["Qty On Hand"] == 0)
+        )]
+
+    # Remove Replen Cls == ROR
+    if "Replen Cls" in df.columns:
+        df = df[df["Replen Cls"].str.strip().str.upper() != "ROR"]
+
+    # Remove Special Inst == Reorder on Request
+    if "Special Inst" in df.columns:
+        df = df[df["Special Inst"].str.strip().str.lower() != "reorder on request"]
+
+    # Remove Special Inst == Delete AND zero quantity
+    if "Special Inst" in df.columns and "Qty On Hand" in df.columns:
+        df = df[~(
+            (df["Special Inst"].str.strip().str.lower() == "delete") &
+            (df["Qty On Hand"] == 0)
+        )]
+
+    # Flag WHMIS items
+    if "MSDS ID" in df.columns:
+        df["WHMIS Flag"] = df["MSDS ID"].notna()
 
     # drop completely empty rows
     df = df.dropna(how="all")
     df = df.reset_index(drop=True)
+
     return df
 
-# File uploader
+    
+#FILEUPLOADER / CLEANER
 uploaded_file = st.file_uploader("Upload Excel or CSV", type=["xlsx", "csv"])
 if uploaded_file:
 
