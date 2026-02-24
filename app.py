@@ -5,7 +5,7 @@ import re
 st.title("Inventory Data Cleaner")
 
 #REQUIRED COLUMNS
-REQUIRED_COLUMNS = ["Item","Descript","Status Current","Replen Cls","Special Inst","Std UOM","End Use Code","Qty On Hand","Qty Avail","Manufacturer Name","Mfg ID","Mfg Itm ID","Vendor Name","Currency","Unit Cost","Code","Comm Code", "MSDS ID"]
+REQUIRED_COLUMNS = ["Item","Descript","Status Current","Replen Cls","Special Inst","Std UOM","End Use Code","Qty On Hand","Qty Avail","Curr Year Usage","Manufacturer Name","Mfg ID","Mfg Itm ID","Vendor Name","Currency","Unit Cost","Code","Comm Code", "MSDS ID"]
 
 #function to clean the data
 def clean_inventory(df):
@@ -94,4 +94,5 @@ st.dataframe(
     use_container_width=True,
     height=500
 )
+
 
