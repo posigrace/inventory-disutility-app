@@ -45,7 +45,12 @@ if uploaded_file:
         df = pd.read_csv(uploaded_file, encoding="latin1")
     else:
         df = pd.read_excel(uploaded_file)
-
+    df.columns = (df.columns
+        .str.strip()                        # remove spaces at start/end
+        .str.lower()                        # lowercase everything
+        .str.replace(" ", "_")              # replace spaces with underscores
+        .str.replace(r"[^\w]", "", regex=True)  # remove special characters
+    )
     st.success("File loaded successfully!")
 
     
@@ -89,3 +94,4 @@ st.dataframe(
     use_container_width=True,
     height=500
 )
+
