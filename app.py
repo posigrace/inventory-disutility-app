@@ -65,8 +65,14 @@ if uploaded_file:
     else:
         df = pd.read_excel(uploaded_file)
 
-    st.subheader("Original Columns")
-    st.write(df.columns.tolist())
+    st.success("File loaded successfully!")
+
+    
+    column_table = pd.DataFrame(df.columns, columns=["Column Name"])
+    st.subheader("Inventory Columns")
+
+    with st.expander("Click to view columns"):
+        st.dataframe(column_table, use_container_width=True, height=400)
 
     cleaned = clean_inventory(df)
 
@@ -79,5 +85,6 @@ if uploaded_file:
         "cleaned_inventory.csv",
         "text/csv"
     )
+
 
 
