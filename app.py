@@ -52,6 +52,8 @@ if uploaded_file:
         .str.replace(r"[^\w]", "", regex=True)  # remove special characters
     )
     st.success("File loaded successfully!")
+    st.subheader("Columns in your file")
+    st.write(df.columns.tolist())
 
     
     column_table = pd.DataFrame(df.columns, columns=["Column Name"])
@@ -94,6 +96,7 @@ st.dataframe(
     use_container_width=True,
     height=500
 )
+
 
 
 
