@@ -66,27 +66,27 @@ if uploaded_file:
 
 
 
-# -----------------------------
-# EOQ & Disutility Model
-# -----------------------------
-st.subheader("EOQ & Disutility Settings")
-ordering_cost = st.number_input(
-    "Ordering cost per order (S)", min_value=0.0, value=100.0, step=1.0
-)
-holding_rate = st.slider(
-    "Annual holding cost rate (%)", min_value=0, max_value=100, value=20
-) / 100  # convert % to decimal
+  # -----------------------------
+  # EOQ & Disutility Model
+  # -----------------------------
+  st.subheader("EOQ & Disutility Settings")
 
-# Work on df_clean to prevent KeyError
-# Make sure numeric columns exist
-for col in ["curr_year_usage", "unit_cost"]:
-    if col not in df_clean.columns:
-        st.error(f"Missing column for calculation: {col}")
-        st.stop()
+  ordering_cost = st.number_input(
+      "Ordering cost per order (S)", min_value=0.0, value=100.0, step=1.0)
 
-df_clean["annual_demand"] = df_clean["curr_year_usage"]
-df_clean["holding_cost"] = df_clean["unit_cost"] * holding_rate
-df_clean["EOQ"] = np.sqrt((2 * df_clean["annual_demand"] * ordering_cost) / df_clean["holding_cost"])
+  holding_rate = st.slider("Annual holding cost rate (%)", min_value=0, max_value=100, value=20) / 100  # convert % to decimal
 
-# Display EOQ preview using original names for nice display
-display_cols = ["item", "qty_on_hand", "EOQ"]
+  # Work on df_clean to prevent KeyError
+  # Make sure numeric columns exist
+  for col in ["curr_year_usage", "unit_cost"]:
+      if col not in df_clean.columns:
+          st.error(f"Missing column for calculation: {col}")
+          st.stop()
+
+  df_clean["annual_demand"] = df_clean["curr_year_usage"]
+  df_clean["holding_cost"] = df_clean["unit_cost"] * holding_rate
+  df_clean["EOQ"] = np.sqrt((2 * df_clean["annual_demand"] * ordering_cost) / df_clean["holding_cost"])
+
+  # Display EOQ preview using original names for nice display
+  display_cols = ["item", "qty_on_hand", "EOQ"]
+
